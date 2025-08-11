@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:google.github.io)",
+      "WebFetch(domain:127.0.0.1)",
+      "Bash(npm create:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(npm install)"
+    ],
+    "deny": []
+  }
+}
