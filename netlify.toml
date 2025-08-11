@@ -32,16 +32,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Handle client-side routing
+# Handle client-side routing (SPA fallback)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# API proxy for development (won't work in production - you'll need to update your backend URL)
-[[redirects]]
-  from = "/api/*"
-  to = "http://127.0.0.1:8002/:splat"
-  status = 200
-  force = true
-  conditions = {Role = ["admin"]}  # This won't work in production, just for documentation

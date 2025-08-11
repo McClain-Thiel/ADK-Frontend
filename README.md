@@ -68,10 +68,17 @@ Requires a running ADK backend with:
 
 This project includes configuration files for easy Netlify deployment:
 
-1. **Build the project**: `npm run build`
-2. **Deploy the `dist` folder** to Netlify
-3. **Update backend URL**: In `src/config/app.config.ts`, change the production `baseUrl` to your deployed ADK backend
+1. **Build locally first** (optional): `npm run build`
+2. **Connect your repo** to Netlify (it will auto-build)
+3. **Update backend URL**: In `src/config/app.config.ts`, change the production `baseUrl` from `https://your-deployed-adk-backend.com` to your actual backend URL
 4. **CORS Configuration**: Ensure your ADK backend allows requests from your Netlify domain
+
+### Build Configuration Fixed
+
+- ✅ **MIME type errors** resolved with proper headers
+- ✅ **TypeScript build errors** fixed (removed unused imports)
+- ✅ **Module loading issues** resolved with Vite configuration
+- ✅ **SPA routing** configured for client-side navigation
 
 ### Important Notes for Production
 

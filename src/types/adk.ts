@@ -55,8 +55,3 @@ export interface ChatMessage {
   timestamp: Date;
   isLoading?: boolean;
 }
-
-export interface AppInfo {
-  name: string;
-  description?: string;
-}

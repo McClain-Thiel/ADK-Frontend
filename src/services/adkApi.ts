@@ -1,4 +1,4 @@
-import { AgentRunRequest, Event, Session, AppInfo, Content } from '../types';
+import { AgentRunRequest, Event, Session, Content } from '../types';
 import { appConfig } from '../config/app.config';
 
 const API_BASE_URL = appConfig.api.baseUrl;
