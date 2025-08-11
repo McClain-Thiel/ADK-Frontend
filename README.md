@@ -62,6 +62,29 @@ Requires a running ADK backend with:
 - Running on port 8002 (configurable via Vite proxy)
 - Standard ADK API endpoints (`/list-apps`, `/run`, etc.)
 
+## Deployment
+
+### Netlify Deployment
+
+This project includes configuration files for easy Netlify deployment:
+
+1. **Build the project**: `npm run build`
+2. **Deploy the `dist` folder** to Netlify
+3. **Update backend URL**: In `src/config/app.config.ts`, change the production `baseUrl` to your deployed ADK backend
+4. **CORS Configuration**: Ensure your ADK backend allows requests from your Netlify domain
+
+### Important Notes for Production
+
+- The app currently uses a local proxy (`/api` → `127.0.0.1:8002`) for development
+- **You must deploy your ADK backend** and update the `baseUrl` in the config for production
+- Alternatively, set up CORS on your ADK backend to allow requests from your frontend domain
+
+### Files for Deployment
+
+- `netlify.toml`: Netlify configuration with headers and redirects
+- `public/_headers`: Additional header configuration for MIME types
+- `.env.example`: Environment variables template
+
 ## Architecture
 
 - **React 18** with TypeScript
@@ -69,4 +92,5 @@ Requires a running ADK backend with:
 - **react-markdown** for rich message formatting
 - **CSS** with custom animations and modern styling
 - **Proxy setup** to handle CORS with ADK backend
+- **Netlify-ready** with proper MIME type configuration
 # ADK-Frontend

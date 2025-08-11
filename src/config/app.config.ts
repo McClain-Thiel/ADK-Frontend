@@ -19,9 +19,14 @@ export interface AppConfig {
   };
 }
 
+// Determine if we're in development or production
+const isDevelopment = import.meta.env.DEV;
+
 export const appConfig: AppConfig = {
   api: {
-    baseUrl: '/api',
+    // In development: use proxy to local backend
+    // In production: you'll need to update this to your deployed backend URL
+    baseUrl: isDevelopment ? '/api' : 'https://your-deployed-adk-backend.com',
     port: 8002,
   },
   agent: {

@@ -15,4 +15,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Ensure proper module output
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+    // Target modern browsers to avoid legacy compatibility issues
+    target: 'es2015',
+    // Ensure source maps for debugging
+    sourcemap: true,
+  },
 })
