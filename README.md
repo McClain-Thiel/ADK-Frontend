@@ -70,8 +70,8 @@ This project includes configuration files for easy Netlify deployment:
 
 1. **Build locally first** (optional): `npm run build`
 2. **Connect your repo** to Netlify (it will auto-build)
-3. **Update backend URL**: In `src/config/app.config.ts`, change the production `baseUrl` from `https://your-deployed-adk-backend.com` to your actual backend URL
-4. **CORS Configuration**: Ensure your ADK backend allows requests from your Netlify domain
+3. **Backend is configured**: Already set to use `https://adk-default-service-name-987669306571.us-central1.run.app`
+4. **CORS may be needed**: If you get CORS errors, configure your Cloud Run backend to allow requests from your Netlify domain
 
 ### Build Configuration Fixed
 

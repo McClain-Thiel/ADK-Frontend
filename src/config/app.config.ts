@@ -25,9 +25,9 @@ const isDevelopment = import.meta.env.DEV;
 export const appConfig: AppConfig = {
   api: {
     // In development: use proxy to local backend
-    // In production: you'll need to update this to your deployed backend URL
-    baseUrl: isDevelopment ? '/api' : 'https://your-deployed-adk-backend.com',
-    port: 8002,
+    // In production: use deployed Google Cloud Run backend
+    baseUrl: isDevelopment ? '/api' : 'https://adk-default-service-name-987669306571.us-central1.run.app',
+    port: isDevelopment ? 8002 : 443,
   },
   agent: {
     name: 'dealer_agent',
