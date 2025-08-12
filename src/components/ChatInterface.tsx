@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
 import { adkApi } from '../services/adkApi';
 import { LoadingBubbles } from './LoadingBubbles';
+import { ErrorDisplay } from './ErrorDisplay';
+
 import { appConfig } from '../config/app.config';
 import './ChatInterface.css';
 
@@ -15,7 +17,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const [sessionId, setSessionId] = useState<string>('');
+  const [, setSession] = useState<any>(null);
+  const [backendReady, setBackendReady] = useState<boolean>(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -27,19 +33,32 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
   }, [messages]);
 
   useEffect(() => {
-    initializeSession();
-  }, [appName, userId, sessionId]);
+    initializeApp();
+  }, [appName, userId]);
 
-  const initializeSession = async () => {
+  const initializeApp = async () => {
     try {
-      await adkApi.createSession(appName, userId, sessionId);
+      setBackendError(null);
+      
+      // Check if backend is ready
+      const ready = await adkApi.isBackendReady();
+      setBackendReady(ready);
+      
+      if (ready) {
+        // Create session with proper retry logic
+        const newSession = await adkApi.createSession(appName, userId);
+        setSession(newSession);
+        setSessionId(newSession.sessionId);
+      }
     } catch (error) {
       console.error('Failed to initialize session:', error);
+      setBackendReady(false);
+      setBackendError(error instanceof Error ? error.message : 'Unknown initialization error');
     }
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || !sessionId) return;
 
     const userMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
@@ -49,6 +68,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = inputValue;
     setInputValue('');
     setIsLoading(true);
 
@@ -63,69 +83,86 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
     setMessages(prev => [...prev, assistantMessage]);
 
     try {
-      const request = {
-        appName,
-        userId,
-        sessionId,
-        newMessage: adkApi.createContent(inputValue),
-        streaming: true,
-      };
+      let accumulatedText = '';
 
-      let responseContent = '';
+      // Use the new streaming API
+      for await (const event of adkApi.streamChatMessages(appName, userId, sessionId, messageText)) {
+        if (event.type === 'text' && event.text) {
+          accumulatedText = event.text;
+          
+          // Update the message with streaming text
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === assistantMessage.id 
+                ? { ...msg, content: accumulatedText, isLoading: !event.isComplete }
+                : msg
+            )
+          );
+        } else if (event.type === 'function_call') {
+          // Handle function calls if needed
+          console.log('Function call:', event.functionCall);
+        } else if (event.type === 'function_response') {
+          // Handle function responses if needed
+          console.log('Function response:', event.functionResponse);
+        }
+
+        // If this is marked as complete, we're done
+        if (event.isComplete) {
+          break;
+        }
+      }
+
+      // Final update to mark as complete
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === assistantMessage.id 
+            ? { 
+                ...msg, 
+                content: accumulatedText || 'No response received', 
+                isLoading: false 
+              }
+            : msg
+        )
+      );
+
+    } catch (error) {
+      console.error('Failed to send message:', error);
       
-      // For now, use non-streaming to get the response working
+      // Fallback to non-streaming API
       try {
+        const request = {
+          appName,
+          userId,
+          sessionId,
+          newMessage: adkApi.createContent(messageText),
+        };
+        
         const events = await adkApi.runAgent(request);
         if (events && events.length > 0) {
           const lastEvent = events[events.length - 1];
           if (lastEvent.content?.parts) {
-            responseContent = adkApi.extractFinalText(lastEvent.content.parts);
+            const responseContent = adkApi.extractFinalText(lastEvent.content.parts);
+            
+            setMessages(prev => 
+              prev.map(msg => 
+                msg.id === assistantMessage.id 
+                  ? { ...msg, content: responseContent || 'No response received', isLoading: false }
+                  : msg
+              )
+            );
           }
         }
-        
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        const errorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
         setMessages(prev => 
           prev.map(msg => 
             msg.id === assistantMessage.id 
-              ? { ...msg, content: responseContent || 'No response received', isLoading: false }
-              : msg
-          )
-        );
-      } catch (streamError) {
-        // Fallback to non-streaming if streaming fails
-        console.warn('Streaming failed, falling back to regular request:', streamError);
-        const events = await adkApi.runAgent({ ...request, streaming: false });
-        if (events && events.length > 0) {
-          const lastEvent = events[events.length - 1];
-          if (lastEvent.content?.parts) {
-            responseContent = adkApi.extractFinalText(lastEvent.content.parts);
-          }
-        }
-        
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === assistantMessage.id 
-              ? { ...msg, content: responseContent || 'No response received', isLoading: false }
+              ? { ...msg, content: `❌ **Backend Error:**\n\n\`${errorMessage}\``, isLoading: false }
               : msg
           )
         );
       }
-
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === assistantMessage.id 
-            ? { ...msg, isLoading: false }
-            : msg
-        )
-      );
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === assistantMessage.id 
-            ? { ...msg, content: 'Error: Failed to get response from agent', isLoading: false }
-            : msg
-        )
-      );
     } finally {
       setIsLoading(false);
     }
@@ -137,6 +174,30 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
       handleSendMessage();
     }
   };
+
+  // Show loading state while backend is not ready
+  if (!backendReady || !sessionId) {
+    return (
+      <div className="chat-interface">
+        <div className="chat-header">
+          <div className="welcome-message">
+            <h3>Connecting to Agent...</h3>
+            <p>Please wait while we establish a connection to the backend service.</p>
+          </div>
+        </div>
+        <div className="messages-container">
+          {backendError ? (
+            <ErrorDisplay error={backendError} onRetry={initializeApp} />
+          ) : (
+            <div className="loading-state">
+              <LoadingBubbles />
+              <p>Initializing session...</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="chat-interface">

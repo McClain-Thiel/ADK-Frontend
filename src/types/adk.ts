@@ -55,3 +55,16 @@ export interface ChatMessage {
   timestamp: Date;
   isLoading?: boolean;
 }
+
+export interface StreamEvent {
+  id: string;
+  timestamp: number;
+  type: string;
+  content?: Content;
+  agent?: string;
+  functionCall?: FunctionCall;
+  functionResponse?: FunctionResponse;
+  text?: string;
+  isComplete?: boolean;
+  error?: string;
+}

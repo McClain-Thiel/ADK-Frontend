@@ -10,6 +10,9 @@ A React frontend for Google's Agent Development Kit (ADK) demonstrating an AI-po
 - 🎨 **Modern UI**: Clean, professional design with gradients
 - ⚙️ **Configurable**: Easy customization through config file
 - 🧠 **Clean Output**: Shows only final responses, filters out AI thinking/reasoning
+- 🔄 **Real-time Streaming**: Proper Server-Sent Events implementation
+- 🛡️ **Robust Error Handling**: Exponential backoff and retry logic
+- 📱 **Production Ready**: Based on Google's official ADK samples architecture
 
 ## Configuration
 
@@ -95,10 +98,22 @@ This project includes configuration files for easy Netlify deployment:
 
 ## Architecture
 
+### Frontend Stack
 - **React 18** with TypeScript
 - **Vite** for development and building  
 - **react-markdown** for rich message formatting
+- **UUID** for proper session management
 - **CSS** with custom animations and modern styling
+
+### ADK Integration (Based on Google Samples)
+- **Proper Server-Sent Events**: Real-time streaming with buffered parsing
+- **Session Management**: UUID-based sessions with caching and retry logic
+- **Error Handling**: Exponential backoff for network resilience
+- **Event Processing**: Sophisticated parsing for different content types
+- **Fallback Support**: Graceful degradation to non-streaming API
+
+### Deployment
 - **Proxy setup** to handle CORS with ADK backend
 - **Netlify-ready** with proper MIME type configuration
+- **Production backend**: Configured for Google Cloud Run
 # ADK-Frontend

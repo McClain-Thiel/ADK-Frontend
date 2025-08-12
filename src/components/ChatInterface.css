@@ -233,3 +233,20 @@
 .messages-container::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Loading state styling */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  height: 200px;
+}
+
+.loading-state p {
+  margin: 1rem 0 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}

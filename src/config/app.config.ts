@@ -22,12 +22,16 @@ export interface AppConfig {
 // Determine if we're in development or production
 const isDevelopment = import.meta.env.DEV;
 
+// Force use production backend for local testing
+const USE_PRODUCTION_BACKEND = import.meta.env.VITE_USE_PRODUCTION_BACKEND === 'true';
+
 export const appConfig: AppConfig = {
   api: {
-    // In development: use proxy to local backend
-    // In production: use deployed Google Cloud Run backend
-    baseUrl: isDevelopment ? '/api' : 'https://adk-default-service-name-987669306571.us-central1.run.app',
-    port: isDevelopment ? 8002 : 443,
+    // Use production backend if flag is set, otherwise use normal dev/prod logic
+    baseUrl: (isDevelopment && !USE_PRODUCTION_BACKEND) 
+      ? '/api' 
+      : 'https://adk-default-service-name-987669306571.us-central1.run.app',
+    port: (isDevelopment && !USE_PRODUCTION_BACKEND) ? 8002 : 443,
   },
   agent: {
     name: 'dealer_agent',

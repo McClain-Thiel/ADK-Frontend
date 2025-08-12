@@ -6,7 +6,10 @@
       "Bash(npm create:*)",
       "Bash(mv:*)",
       "Bash(rmdir:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }
