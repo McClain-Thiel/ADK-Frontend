@@ -79,11 +79,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
         if (events && events.length > 0) {
           const lastEvent = events[events.length - 1];
           if (lastEvent.content?.parts) {
-            for (const part of lastEvent.content.parts) {
-              if (part.text) {
-                responseContent += part.text;
-              }
-            }
+            responseContent = adkApi.extractFinalText(lastEvent.content.parts);
           }
         }
         
@@ -101,11 +97,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
         if (events && events.length > 0) {
           const lastEvent = events[events.length - 1];
           if (lastEvent.content?.parts) {
-            for (const part of lastEvent.content.parts) {
-              if (part.text) {
-                responseContent += part.text;
-              }
-            }
+            responseContent = adkApi.extractFinalText(lastEvent.content.parts);
           }
         }
         

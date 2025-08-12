@@ -104,6 +104,21 @@ class ADKApiService {
       role: 'user'
     };
   }
+
+  /**
+   * Extracts only the final text output from ADK response parts,
+   * filtering out thinking/reasoning content and taking only the last text part
+   */
+  extractFinalText(parts: any[]): string {
+    const textParts = parts.filter(part => part.text);
+    
+    if (textParts.length === 0) {
+      return '';
+    }
+    
+    // Return only the last text part (final output), skip thinking/reasoning
+    return textParts[textParts.length - 1].text;
+  }
 }
 
 export const adkApi = new ADKApiService();

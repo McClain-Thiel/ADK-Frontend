@@ -9,6 +9,7 @@ A React frontend for Google's Agent Development Kit (ADK) demonstrating an AI-po
 - 💫 **Smooth Animations**: Loading bubbles and hover effects
 - 🎨 **Modern UI**: Clean, professional design with gradients
 - ⚙️ **Configurable**: Easy customization through config file
+- 🧠 **Clean Output**: Shows only final responses, filters out AI thinking/reasoning
 
 ## Configuration
 
