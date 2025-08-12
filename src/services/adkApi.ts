@@ -227,7 +227,7 @@ class ADKApiService {
       functionCall: eventData.content?.parts?.find((p: any) => p.functionCall)?.functionCall,
       functionResponse: eventData.content?.parts?.find((p: any) => p.functionResponse)?.functionResponse,
       text: this.extractFinalText(eventData.content?.parts || []),
-      isComplete: eventData.isComplete || false
+      isComplete: !eventData.partial && (eventData.isComplete || false)
     };
   }
 
@@ -291,14 +291,10 @@ class ADKApiService {
       return '';
     }
     
-    const textParts = parts.filter(part => part.text);
-    
-    if (textParts.length === 0) {
-      return '';
-    }
-    
-    // Return only the last text part (final output), skip thinking/reasoning
-    return textParts[textParts.length - 1].text;
+    return parts
+      .filter(part => !part.hasOwnProperty('thought') && part.text)
+      .map(part => part.text)
+      .join('');
   }
 
   /**

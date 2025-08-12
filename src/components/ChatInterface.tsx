@@ -88,7 +88,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
       // Use the new streaming API
       for await (const event of adkApi.streamChatMessages(appName, userId, sessionId, messageText)) {
         if (event.type === 'text' && event.text) {
-          accumulatedText = event.text;
+          accumulatedText += event.text;
           
           // Update the message with streaming text
           setMessages(prev => 
