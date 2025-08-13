@@ -84,10 +84,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
 
     try {
       let accumulatedText = '';
+      let lastSeenText = '';
 
       // Use the new streaming API
       for await (const event of adkApi.streamChatMessages(appName, userId, sessionId, messageText)) {
         if (event.type === 'text' && event.text) {
+          // Skip if we've already seen this exact text (prevents duplicates)
+          if (event.text === lastSeenText) {
+            continue;
+          }
+          
           // If this is a complete message (not partial), use it directly
           // Otherwise, accumulate partial chunks
           if (event.isComplete) {
@@ -95,6 +101,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ appName, userId })
           } else {
             accumulatedText += event.text;
           }
+          
+          lastSeenText = event.text;
           
           // Update the message with streaming text
           setMessages(prev => 
